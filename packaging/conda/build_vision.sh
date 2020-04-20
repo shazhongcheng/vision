@@ -104,7 +104,9 @@ if [[ "$desired_cuda" == 'cpu' ]]; then
 else
     export CONDA_CPUONLY_FEATURE=""
     . ./switch_cuda_version.sh $desired_cuda
-    if [[ "$desired_cuda" == "10.1" ]]; then
+    if [[ "$desired_cuda" == "10.2" ]]; then
+        export CONDA_CUDATOOLKIT_CONSTRAINT="- cudatoolkit >=10.2,<10.3 # [not osx]"
+    elif [[ "$desired_cuda" == "10.1" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="- cudatoolkit >=10.1,<10.2 # [not osx]"
     elif [[ "$desired_cuda" == "10.0" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="- cudatoolkit >=10.0,<10.1 # [not osx]"
@@ -157,12 +159,22 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     rm -rf "$output_folder"
     mkdir "$output_folder"
 
+    if [[ "$py_ver" == 3.5 ]]; then
+	export CONDA_TYPING_CONSTRAINT="- typing"
+    else
+	export CONDA_TYPING_CONSTRAINT=""
+    fi
+
+    export VSTOOLCHAIN_PACKAGE=vs2017
+
     # We need to build the compiler activation scripts first on Windows
     time VSDEVCMD_ARGS=${VSDEVCMD_ARGS[@]} \
         conda build -c "$ANACONDA_USER" \
                     --no-anaconda-upload \
                     --output-folder "$output_folder" \
-                    ../vs2017
+                    ../$VSTOOLCHAIN_PACKAGE
+
+    cp ../$VSTOOLCHAIN_PACKAGE/conda_build_config.yaml ../torchvision/conda_build_config.yaml
 
     conda config --set anaconda_upload no
     echo "Calling conda-build at $(date)"

@@ -12,7 +12,6 @@ requirements:
   host:
     - python
     - setuptools
-    - av
     {{ environ.get('CONDA_PYTORCH_BUILD_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
     {{ environ.get('CONDA_CPUONLY_FEATURE') }}
@@ -21,8 +20,6 @@ requirements:
     - python
     - pillow >=4.1.1
     - numpy >=1.11
-    - six
-    - av
     {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
 
@@ -49,9 +46,9 @@ test:
     - mock
     - av
     - ca-certificates
-    - typing
+    {{ environ.get('CONDA_TYPING_CONSTRAINT') }}
   commands:
-    pytest .
+    pytest . --verbose --junitxml={{ environ.get("CONDA_PYTORCH_BUILD_RESULTS_DIRECTORY", "build/test_results.xml" )}}
 
 
 about:
